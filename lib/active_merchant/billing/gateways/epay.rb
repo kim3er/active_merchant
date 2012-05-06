@@ -8,7 +8,7 @@ module ActiveMerchant #:nodoc:
       self.money_format = :cents
       self.supported_cardtypes = [:dankort, :forbrugsforeningen, :visa, :master,
                                   :american_express, :diners_club, :jcb, :maestro]
-      self.supported_countries = ['DK']
+      self.supported_countries = ['DK', 'SE', 'NO']
       self.homepage_url = 'http://epay.dk/'
       self.display_name = 'ePay'
 
@@ -53,7 +53,7 @@ module ActiveMerchant #:nodoc:
       # login: merchant number
       # password: referrer url (for authorize authentication)
       def initialize(options = {})
-        requires!(options, :login, :password)
+        requires!(options, :login)
         @options = options
         super
       end
@@ -97,7 +97,7 @@ module ActiveMerchant #:nodoc:
         commit(:void, post)
       end
 
-      def credit(money, identification, options = {})
+      def refund(money, identification, options = {})
         post = {}
 
         add_amount_without_currency(post, money)
@@ -106,6 +106,10 @@ module ActiveMerchant #:nodoc:
         commit(:credit, post)
       end
 
+      def credit(money, identification, options = {})
+        deprecated CREDIT_DEPRECATION_MESSAGE
+        refund(money, identification, options)
+      end
 
       private
 
@@ -176,15 +180,23 @@ module ActiveMerchant #:nodoc:
       end
 
       def do_authorize(params)
-        headers = {
-          'Referer' => options[:password]
-        }
+        headers = {}
+        headers['Referer'] = (options[:password] || "activemerchant.org")
 
         response = raw_ssl_request(:post, 'https://' + API_HOST + '/auth/default.aspx', authorize_post_data(params), headers)
 
         # Authorize gives the response back by redirecting with the values in
         # the URL query
-        query = CGI::parse(URI.parse(response['Location'].gsub(' ', '%20')).query)
+        if location = response['Location']
+          query = CGI::parse(URI.parse(location.gsub(' ', '%20')).query)
+        else
+          return {
+            'accept' => '0',
+            'errortext' => 'ePay did not respond as expected. Please try again.',
+            'response_code' => response.code,
+            'response_message' => response.message
+          }
+        end
 
         result = {}
         query.each_pair do |k,v|

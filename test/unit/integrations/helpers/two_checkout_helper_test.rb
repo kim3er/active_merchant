@@ -24,7 +24,18 @@ class TwoCheckoutHelperTest < Test::Unit::TestCase
     assert_field 'email', 'cody@example.com'
     assert_field 'phone', '(555)555-5555'
   end
-
+  
+  def test_line_item_fields
+    @helper.line_item :quantity => 1, :recurrence => '1 Week'
+    @helper.line_item :description => 'Test Product', :price => '15.0'
+    
+    assert_field 'li_1_quantity', '1'
+    assert_field 'li_1_recurrence', '1 Week'
+    
+    assert_field 'li_2_description', 'Test Product'
+    assert_field 'li_2_price', '15.0'
+  end
+  
   def test_address_mapping
     @helper.billing_address :address1 => '1 My Street',
                             :address2 => 'Apt. 1',
@@ -47,13 +58,13 @@ class TwoCheckoutHelperTest < Test::Unit::TestCase
                              :city => 'London',
                              :state => 'Whales',
                              :zip => 'LS2 7E1',
-                             :country  => 'UK'
+                             :country  => 'GB'
     
     assert_field 'ship_city', 'London'
     assert_field 'ship_street_address', '1 My Street'
     assert_field 'ship_state', 'Whales'
     assert_field 'ship_zip', 'LS2 7E1'
-    assert_field 'ship_country', 'UK'
+    assert_field 'ship_country', 'GB'
   end
   
   def test_unknown_address_mapping

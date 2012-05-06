@@ -1,3 +1,4 @@
+# coding: utf-8
 require 'test_helper'
 
 class GarantiTest < Test::Unit::TestCase
@@ -35,6 +36,24 @@ class GarantiTest < Test::Unit::TestCase
     assert response.test?
   end
 
+  def test_character_normalization
+    if ActiveSupport::Inflector.method(:transliterate).arity == -2
+      assert_equal 'ABCCDEFGGHIIJKLMNOOPRSSTUUVYZ', @gateway.send(:normalize, 'ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ')
+      assert_equal 'abccdefgghiijklmnooprsstuuvyz', @gateway.send(:normalize, 'abcçdefgğhıijklmnoöprsştuüvyz')
+    elsif RUBY_VERSION >= '1.9'
+      assert_equal 'ABCDEFGHIJKLMNOPRSTUVYZ', @gateway.send(:normalize, 'ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ')
+      assert_equal 'abcdefghijklmnoprstuvyz', @gateway.send(:normalize, 'abcçdefgğhıijklmnoöprsştuüvyz')
+    else
+      assert_equal 'ABCCDEFGGHIIJKLMNOOPRSSTUUVYZ', @gateway.send(:normalize, 'ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ')
+      assert_equal 'abccdefgghijklmnooprsstuuvyz', @gateway.send(:normalize, 'abcçdefgğhıijklmnoöprsştuüvyz')
+    end
+  end
+
+  def test_nil_normalization
+    assert_nil @gateway.send(:normalize, nil)
+  end
+  
+  
   private
 
   # Place raw successful response from gateway here
