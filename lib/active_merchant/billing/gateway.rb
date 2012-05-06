@@ -94,7 +94,7 @@ module ActiveMerchant #:nodoc:
       class_attribute :display_name
       
       # Indicates if the gateway supports 3D Secure authentication or not
-      class_inheritable_accessor :supports_3d_secure
+      class_attribute :supports_3d_secure
       self.supports_3d_secure = false
       
       # The application making the calls to the gateway
