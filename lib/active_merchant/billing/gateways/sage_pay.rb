@@ -270,7 +270,7 @@ module ActiveMerchant #:nodoc:
       end
       
       def authorization_from(response, params, action)
-         [ params[:VendorTxCode],
+         [ params[:order_id],
            response["VPSTxId"],
            response["TxAuthNo"],
            response["SecurityKey"],
