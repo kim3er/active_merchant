@@ -112,6 +112,15 @@ module ActiveMerchant #:nodoc:
         commit(action, post)
       end
 
+      def force_abort(identification, options = {})
+        post = {}
+        
+        add_reference(post, identification)
+        action = :abort
+
+        commit(action, post)
+      end
+
       # Refunding requires a new order_id to passed in, as well as a description
       def refund(money, identification, options = {})
         requires!(options, :order_id, :description)
