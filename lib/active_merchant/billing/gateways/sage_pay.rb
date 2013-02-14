@@ -112,7 +112,7 @@ module ActiveMerchant #:nodoc:
         commit(action, post)
       end
 
-      def abort(identification, options = {})
+      def force_abort(identification, options = {})
         post = {}
         
         add_reference(post, identification)
