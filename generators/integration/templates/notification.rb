@@ -76,6 +76,7 @@ module ActiveMerchant #:nodoc:
             http = Net::HTTP.new(uri.host, uri.port)
             http.verify_mode    = OpenSSL::SSL::VERIFY_NONE unless @ssl_strict
             http.use_ssl        = true
+            http.ssl_version    = :TLSv1
 
             response = http.request(request, payload)
 
