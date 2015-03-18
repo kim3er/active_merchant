@@ -48,6 +48,7 @@ module ActiveMerchant #:nodoc:
     
       self.homepage_url = 'http://www.sagepay.com'
       self.display_name = 'SagePay'
+      self.ssl_version = :TLSv1_2
     
       def initialize(options = {})
         requires!(options, :login)
